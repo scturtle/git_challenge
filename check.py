@@ -68,6 +68,26 @@ def check_bisect():
     else:
         print('You found bad guy!')
 
+def init_amend():
+    open('file', 'w').write('a\nb\nc')
+
+def check_amend():
+    assert git_dirty() == []
+    messages = [m for _, m in commit_and_messages()]
+    assert messages == ['b & c', 'a'], messages
+    [bc_id, a_id] = [i for i, _ in commit_and_messages()]
+    diff_a_bc = git_diff_between(a_id, bc_id)
+    assert diff_a_bc == ['--- a/file', '+++ b/file', '+b', '+c'], diff_a_bc
+
+def init_uncommit():
+    open('file', 'w').write('a\nb\nc\nd')
+
+def check_uncommit():
+    messages = [m for _, m in commit_and_messages()]
+    assert messages == ['b', 'a'], messages
+    diff = git_dirty()
+    assert diff == ['--- a/file', '+++ b/file', '+c', '+d'], diff
+
 def run_init():
     branch = get_branch()
     if branch.endswith('_test'):
